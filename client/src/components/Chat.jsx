@@ -1,10 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ArrowUp, Sparkles, Sun, Moon, Columns2, Columns3 } from 'lucide-react';
+import { ArrowUp, Sparkles, Columns2, Columns3, ChevronDown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-const WIDTH_MODES = {
+const MODELS = [
+  { id: 'gemini-2.5-flash', label: '2.5-flash' },
+  { id: 'gemini-2.5-pro', label: '2.5-pro' },
+  { id: 'gemini-2.0-flash-001', label: '2.0-flash' },
+  { id: 'gemini-2.0-flash-lite-001', label: '2.0-flash-lite' },
+];
+
+const WIDTH_MODES = ['compact', 'default', 'wide', 'full'];
+const WIDTH_CLASSES = {
   compact: 'max-w-xl',
   default: 'max-w-2xl',
   wide: 'max-w-4xl',
@@ -18,19 +27,40 @@ const SUGGESTIONS = [
   '¿Qué tipografía usa el sistema?',
 ];
 
+const STORAGE_KEY = 'mindset-chat-history';
+const MODEL_STORAGE_KEY = 'mindset-chat-model';
+
 export function Chat() {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [model, setModel] = useState(() => {
+    return localStorage.getItem(MODEL_STORAGE_KEY) || MODELS[0].id;
+  });
+  const [widthMode, setWidthMode] = useState('default');
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isDark, setIsDark] = useState(true);
-  const [widthMode, setWidthMode] = useState('default');
   const messagesEndRef = useRef(null);
 
   const cycleWidth = () => {
-    const modes = Object.keys(WIDTH_MODES);
-    const currentIndex = modes.indexOf(widthMode);
-    const nextIndex = (currentIndex + 1) % modes.length;
-    setWidthMode(modes[nextIndex]);
+    const currentIndex = WIDTH_MODES.indexOf(widthMode);
+    const nextIndex = (currentIndex + 1) % WIDTH_MODES.length;
+    setWidthMode(WIDTH_MODES[nextIndex]);
+  };
+
+  useEffect(() => {
+    localStorage.setItem(MODEL_STORAGE_KEY, model);
+  }, [model]);
+
+  // Persist messages to localStorage
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+  }, [messages]);
+
+  const clearHistory = () => {
+    setMessages([]);
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   const scrollToBottom = () => {
@@ -40,10 +70,6 @@ export function Chat() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-  }, [isDark]);
 
   const sendMessage = async (text) => {
     const question = text || input.trim();
@@ -58,7 +84,7 @@ export function Chat() {
       const response = await fetch('/api/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, model }),
       });
 
       const data = await response.json();
@@ -87,54 +113,61 @@ export function Chat() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-[var(--surface-bg)]">
-      <div className={`flex-1 flex flex-col ${WIDTH_MODES[widthMode]} w-full mx-auto min-h-0 transition-all duration-300`}>
-        {/* Header */}
-        <header className="px-4 py-4 border-b border-[var(--stroke-subtle)] shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[var(--accent)] flex items-center justify-center">
-                <span className="text-white font-semibold text-sm">M</span>
-              </div>
-              <div>
-                <h1 className="text-base font-semibold text-[var(--content-primary)]">MindSet DS</h1>
-                <p className="text-xs text-[var(--content-secondary)]">Design System Documentation</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={cycleWidth}
-                className="p-2.5 rounded-lg border border-[var(--stroke-subtle)] hover:bg-[var(--surface-layer)] transition-colors hidden sm:flex items-center gap-1.5"
-                title={`Ancho: ${widthMode}`}
-              >
-                {widthMode === 'compact' || widthMode === 'default' ? (
-                  <Columns2 className="w-4 h-4 text-[var(--content-secondary)]" />
-                ) : (
-                  <Columns3 className="w-4 h-4 text-[var(--content-secondary)]" />
-                )}
-                <span className="text-xs text-[var(--content-secondary)] capitalize">{widthMode}</span>
-              </button>
-              <button
-                onClick={() => setIsDark(!isDark)}
-                className="p-2.5 rounded-lg border border-[var(--stroke-subtle)] hover:bg-[var(--surface-layer)] transition-colors"
-              >
-                {isDark ? (
-                  <Sun className="w-4 h-4 text-[var(--content-secondary)]" />
-                ) : (
-                  <Moon className="w-4 h-4 text-[var(--content-secondary)]" />
-                )}
-              </button>
-            </div>
+    <div className="chat-container">
+      <div className={`chat-inner ${WIDTH_CLASSES[widthMode]} transition-all duration-300`}>
+        {/* Toolbar */}
+        <div className="chat-toolbar">
+          <div className="chat-toolbar-title">
+            <span className="chat-toolbar-dot" />
+            <span>Chat</span>
           </div>
-        </header>
+          <div className="chat-toolbar-actions">
+            <button
+              onClick={cycleWidth}
+              className="chat-toolbar-btn"
+              title={`Ancho: ${widthMode}`}
+            >
+              {widthMode === 'compact' || widthMode === 'default' ? (
+                <Columns2 className="w-4 h-4" />
+              ) : (
+                <Columns3 className="w-4 h-4" />
+              )}
+              <span className="text-xs capitalize">{widthMode}</span>
+            </button>
+            <div className="chat-model-select">
+              <select
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                className="chat-model-dropdown"
+              >
+                {MODELS.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="chat-model-chevron" />
+            </div>
+            <button
+              onClick={clearHistory}
+              className="chat-toolbar-btn"
+              title="Reiniciar conversación"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
+            </button>
+          </div>
+        </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-6">
+        <div className="chat-messages">
           {messages.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="h-full flex flex-col items-center justify-center"
+              className="chat-welcome"
             >
               <Sparkles className="w-8 h-8 text-[var(--accent)] mb-4" />
               <h2 className="text-lg font-medium text-[var(--content-primary)] mb-2">
@@ -148,7 +181,7 @@ export function Chat() {
                   <button
                     key={i}
                     onClick={() => sendMessage(s)}
-                    className="px-3 py-2 text-xs text-[var(--content-secondary)] bg-[var(--surface-layer)] hover:bg-[var(--surface-layer-strong)] border border-[var(--stroke-subtle)] rounded-lg transition-colors"
+                    className="chat-suggestion"
                   >
                     {s}
                   </button>
@@ -167,7 +200,7 @@ export function Chat() {
         </div>
 
         {/* Input */}
-        <div className="p-4 border-t border-[var(--stroke-subtle)] shrink-0">
+        <div className="chat-input-container">
           <form onSubmit={handleSubmit}>
             <div className="flex gap-2">
               <input
@@ -176,12 +209,12 @@ export function Chat() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Pregunta sobre el Design System..."
                 disabled={isLoading}
-                className="flex-1 bg-[var(--surface-input)] border border-[var(--stroke-subtle)] rounded-xl px-4 py-3 text-[var(--content-primary)] text-sm placeholder-[var(--content-disabled)] outline-none focus:border-[var(--accent)]/50 disabled:opacity-50"
+                className="chat-input"
               />
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="p-3 rounded-xl bg-[var(--accent)] text-white disabled:opacity-30 hover:brightness-110 transition-all"
+                className="chat-submit-btn"
               >
                 <ArrowUp className="w-5 h-5" strokeWidth={2.5} />
               </button>
@@ -218,7 +251,28 @@ function Message({ content, isUser, isError }) {
           <p className="text-sm">{content}</p>
         ) : (
           <div className="markdown-content text-sm">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                a: ({ href, children }) => {
+                  // Handle internal links (docs links)
+                  if (href?.startsWith('/docs/')) {
+                    return (
+                      <Link to={href} className="text-[var(--accent)] hover:underline">
+                        {children}
+                      </Link>
+                    );
+                  }
+                  return (
+                    <a href={href} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline">
+                      {children}
+                    </a>
+                  );
+                },
+              }}
+            >
+              {content}
+            </ReactMarkdown>
           </div>
         )}
       </div>

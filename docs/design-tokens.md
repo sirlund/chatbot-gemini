@@ -54,6 +54,24 @@ La escala base define los valores primitivos usados para construir todos los dem
 - **Labels y captions**: Usa `--font-size-xs` (12px) para notas pequeñas, badges, timestamps
 - **Código**: Siempre usa `--font-family-mono` con cualquier tamaño
 
+## Iconos
+
+Basado en **Tabler Icons** (outline style). Ver [icons.md](./icons.md) para guía completa.
+
+### Tamaños de iconos
+
+| Token | Valor | Stroke Token | Uso |
+|-------|-------|--------------|-----|
+| `--icon-size-xs` | 16px | `--stroke-thin` (1px) | Badges, indicadores, inline con texto XS |
+| `--icon-size-s` | 20px | `--stroke-light` (1.25px) | Inputs, botones pequeños, listas |
+| `--icon-size-m` | 24px | `--stroke-medium` (1.5px) | **Default**, botones, navegación |
+| `--icon-size-l` | 32px | `--stroke-large` (2px) | Headers, empty states, destacados |
+
+### Guía de uso de iconos
+- **Siempre** usar el stroke correspondiente al tamaño (ver tabla arriba)
+- **Alinear** con texto usando flexbox o `vertical-align: middle`
+- **Espaciado**: `--gap-2xs` (4px) entre icono y texto
+
 ## Espaciado (Gap)
 
 Sistema de espaciado para márgenes, padding y gaps entre elementos.
@@ -120,6 +138,21 @@ Sistema de espaciado para márgenes, padding y gaps entre elementos.
 | `--max-width-desktop` | 1440px | Desktop estándar |
 | `--max-width-desktop-lg` | 1600px | Desktop grande |
 | `--max-width-desktop-xl` | 1980px | Desktop extra grande |
+
+## Sombras
+
+Sistema de elevación con 3 niveles. Ver [shadows.md](./shadows.md) para guía completa.
+
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `--shadow-small` | 0 2px 4px rgba(0,0,0,0.15), 0 0 4px rgba(0,0,0,0.04) | Cards hover, botones |
+| `--shadow-medium` | 0 4px 12px rgba(0,0,0,0.15), 0 0 4px rgba(0,0,0,0.04) | Dropdowns, tooltips, toasts |
+| `--shadow-large` | 0 8px 16px rgba(0,0,0,0.15), 0 0 4px rgba(0,0,0,0.04) | Modales, dialogs |
+
+### Guía de uso de sombras
+- **Small**: Elevación sutil (hover states, cards interactivas)
+- **Medium**: Elementos flotantes (menús, popovers, tooltips)
+- **Large**: Máxima elevación (modales, dialogs)
 
 ## Colores Base
 

@@ -59,15 +59,56 @@ async function getIndex() {
   return index;
 }
 
+// Document slug mapping for links
+const DOC_SLUGS = {
+  'design-tokens': ['tokens', 'espaciado', 'escala', 'scale', 'gap', 'padding', 'margin'],
+  'typography': ['tipografía', 'fuente', 'font', 'texto', 'heading', 'label'],
+  'shadows': ['sombra', 'shadow', 'elevación', 'elevation'],
+  'icons': ['icono', 'icon'],
+  'avatar': ['avatar'],
+  'badge': ['badge', 'insignia', 'etiqueta'],
+  'banner': ['banner', 'alerta', 'notificación'],
+  'button': ['botón', 'button', 'cta'],
+  'thumbnail': ['thumbnail', 'miniatura', 'imagen'],
+};
+
+// Build prompt with doc links instruction
+function buildSystemPrompt() {
+  const docsList = Object.entries(DOC_SLUGS)
+    .map(([slug]) => `- /docs/${slug}`)
+    .join('\n');
+
+  return `Eres un asistente experto en el MindSet Design System. Responde preguntas sobre tokens, componentes, tipografía, colores y demás elementos del sistema de diseño.
+
+IMPORTANTE: Cuando menciones componentes o secciones de documentación específicos, incluye un link markdown a la documentación relevante. Los links disponibles son:
+
+${docsList}
+
+Ejemplo: "Para más detalles sobre los botones, consulta la [documentación de Button](/docs/button)."
+
+Responde de forma clara y concisa en español.`;
+}
+
 // Query the index
-async function queryRAG(question) {
+async function queryRAG(question, modelId) {
   const idx = await getIndex();
+
+  // Update LLM if different model requested
+  if (modelId && modelId !== Settings.llm.model) {
+    Settings.llm = new Gemini({
+      apiKey: process.env.GEMINI_API_KEY,
+      model: modelId,
+    });
+  }
+
   const queryEngine = idx.asQueryEngine({
     similarityTopK: 5,
   });
 
+  const systemPrompt = buildSystemPrompt();
+
   const response = await queryEngine.query({
-    query: question,
+    query: `${systemPrompt}\n\nPregunta del usuario: ${question}`,
   });
 
   return response.toString();

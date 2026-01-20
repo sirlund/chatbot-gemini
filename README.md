@@ -78,6 +78,38 @@ npm run dev
 └── package.json
 ```
 
+## Documentation Status
+
+### Foundations
+- [x] Design Tokens
+- [x] Typography
+- [x] Shadows
+- [x] Icons (Tabler Icons)
+
+### Components
+- [x] Avatar
+- [x] Thumbnail
+- [x] Badge
+- [x] Banner Alert
+- [x] Button (base)
+- [ ] Button variants (Icon Button, Destructive)
+- [ ] Cards
+- [ ] Canvas
+- [ ] Chat
+- [ ] Chip
+- [ ] Forms
+- [ ] Layout Elements
+- [ ] Content
+- [ ] Menu
+- [ ] Modal
+- [ ] Progress Bar
+- [ ] Sidebar
+- [ ] Table
+- [ ] Tabs
+- [ ] Toast
+- [ ] Tooltips
+- [ ] Tree
+
 ## API
 
 ### POST /api/query
