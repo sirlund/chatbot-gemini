@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot con Gemini</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="chat-container">
+    <header class="chat-header">
+      <h1>Chatbot Gemini</h1>
+      <div class="header-controls">
+        <select id="model-select" title="Seleccionar modelo">
+          <option value="">Cargando...</option>
+        </select>
+        <button id="clear-btn" title="Limpiar conversación">Limpiar</button>
+      </div>
+    </header>
+
+    <div class="chat-messages" id="messages">
+      <div class="message bot">
+        <div class="message-content">
+          Hola, soy un chatbot impulsado por Gemini. ¿En qué puedo ayudarte?
+        </div>
+      </div>
+    </div>
+
+    <form class="chat-input" id="chat-form">
+      <input
+        type="text"
+        id="user-input"
+        placeholder="Escribe tu mensaje..."
+        autocomplete="off"
+        required
+      >
+      <button type="submit" id="send-btn">Enviar</button>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

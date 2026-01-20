@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+:root {
+  --sat: env(safe-area-inset-top);
+  --sar: env(safe-area-inset-right);
+  --sab: env(safe-area-inset-bottom);
+  --sal: env(safe-area-inset-left);
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #0a0a0a;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Messages scroll area */
+.messages-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Markdown styles */
+.markdown-content {
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.markdown-content p {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content code {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.3rem;
+  font-size: 0.8em;
+  font-family: ui-monospace, monospace;
+  word-break: break-all;
+}
+
+.markdown-content pre {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 0.75rem;
+  border-radius: 0.6rem;
+  overflow-x: auto;
+  margin: 0.5rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.8em;
+}
+
+.markdown-content pre code {
+  background: none;
+  padding: 0;
+  word-break: normal;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-left: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content li {
+  margin-bottom: 0.25rem;
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.markdown-content a {
+  color: #2dd4bf;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown-content a:hover {
+  color: #5eead4;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+  font-weight: 600;
+  margin-top: 0.75rem;
+  margin-bottom: 0.35rem;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.markdown-content blockquote {
+  border-left: 2px solid rgba(255, 255, 255, 0.2);
+  padding-left: 0.75rem;
+  margin: 0.5rem 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* iOS input fix - prevent zoom */
+@supports (-webkit-touch-callout: none) {
+  input, textarea, select {
+    font-size: 16px;
+  }
+}
