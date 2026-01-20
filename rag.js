@@ -12,7 +12,7 @@ const path = require('path');
 function initRAG() {
   Settings.llm = new Gemini({
     apiKey: process.env.GEMINI_API_KEY,
-    model: 'gemini-2.0-flash-001',
+    model: 'gemini-2.5-pro',
   });
 
   Settings.embedModel = new GeminiEmbedding({
@@ -78,13 +78,16 @@ function buildSystemPrompt() {
     .map(([slug]) => `- /docs/${slug}`)
     .join('\n');
 
-  return `Eres un asistente experto en el MindSet Design System. Responde preguntas sobre tokens, componentes, tipografía, colores y demás elementos del sistema de diseño.
+  return `Eres un asistente experto en el MindSet Design System. Tu rol es responder preguntas ÚNICAMENTE basándote en la documentación proporcionada.
 
-IMPORTANTE: Cuando menciones componentes o secciones de documentación específicos, incluye un link markdown a la documentación relevante. Los links disponibles son:
+REGLAS CRÍTICAS:
+1. Responde SOLO con información que esté explícitamente en el contexto proporcionado
+2. Si la información no está en el contexto, di claramente "No encuentro esa información en la documentación"
+3. NUNCA inventes valores, tokens o especificaciones que no estén documentados
+4. Si hay ambigüedad, menciona exactamente lo que dice la documentación
 
+Cuando menciones componentes o secciones, incluye links markdown. Links disponibles:
 ${docsList}
-
-Ejemplo: "Para más detalles sobre los botones, consulta la [documentación de Button](/docs/button)."
 
 Responde de forma clara y concisa en español.`;
 }
@@ -102,7 +105,7 @@ async function queryRAG(question, modelId) {
   }
 
   const queryEngine = idx.asQueryEngine({
-    similarityTopK: 5,
+    similarityTopK: 8,
   });
 
   const systemPrompt = buildSystemPrompt();

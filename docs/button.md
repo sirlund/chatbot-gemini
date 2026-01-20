@@ -53,22 +53,42 @@ interface ButtonProps {
 
 ## Especificaciones de Diseño
 
-### Contenedor
+### Contenedor Base
 
 | Propiedad | Valor | Token |
 |-----------|-------|-------|
 | Min width | 64px | - |
 | Max width | 480px | - |
-| Border radius | 6px | `--radius-s` |
 | Gap (icon-label) | 4px | `--gap-2xs` |
 
-### Dimensiones por Tamaño
+### Especificaciones por Tamaño
 
-| Size | Height | Padding X | Icon Size |
-|------|--------|-----------|-----------|
-| **Small** | 32px | 16px (`--gap-m`) | 20px (S) |
-| **Medium** | 40px | 16px (`--gap-m`) | 20px (S) |
-| **Large** | 48px | 20px (`--gap-l`) | 24px (M) |
+#### Small Button
+| Propiedad | Valor | Token |
+|-----------|-------|-------|
+| Height | 32px | - |
+| Border radius | 6px | `--radius-s` |
+| Padding horizontal | 16px | `--gap-m` |
+| Font size | 14px | UI-Label/S |
+| Icon size | 20px | Icon S |
+
+#### Medium Button (Default)
+| Propiedad | Valor | Token |
+|-----------|-------|-------|
+| Height | 40px | - |
+| Border radius | 6px | `--radius-s` |
+| Padding horizontal | 16px | `--gap-m` |
+| Font size | 14px | UI-Label/S |
+| Icon size | 20px | Icon S |
+
+#### Large Button
+| Propiedad | Valor | Token |
+|-----------|-------|-------|
+| Height | 48px | - |
+| Border radius | 8px | `--radius-m` |
+| Padding horizontal | 20px | `--gap-l` |
+| Font size | 16px | UI-Label/M |
+| Icon size | 24px | Icon M |
 
 ### Tipografía
 
@@ -140,7 +160,6 @@ interface ButtonProps {
   align-items: center;
   justify-content: center;
   gap: var(--gap-2xs);
-  border-radius: var(--radius-s);
   font-family: var(--font-family-default);
   font-weight: 600;
   line-height: 1.2;
@@ -156,18 +175,21 @@ interface ButtonProps {
   height: 32px;
   padding: 0 var(--gap-m);
   font-size: 14px;
+  border-radius: var(--radius-s); /* 6px */
 }
 
 .button--medium {
   height: 40px;
   padding: 0 var(--gap-m);
   font-size: 14px;
+  border-radius: var(--radius-s); /* 6px */
 }
 
 .button--large {
   height: 48px;
   padding: 0 var(--gap-l);
   font-size: 16px;
+  border-radius: var(--radius-m); /* 8px */
 }
 
 /* Primary */

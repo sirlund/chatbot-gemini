@@ -1,16 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ArrowUp, Sparkles, Columns2, Columns3, ChevronDown } from 'lucide-react';
+import { ArrowUp, Sparkles, Columns2, Columns3 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-
-const MODELS = [
-  { id: 'gemini-2.5-flash', label: '2.5-flash' },
-  { id: 'gemini-2.5-pro', label: '2.5-pro' },
-  { id: 'gemini-2.0-flash-001', label: '2.0-flash' },
-  { id: 'gemini-2.0-flash-lite-001', label: '2.0-flash-lite' },
-];
 
 const WIDTH_MODES = ['compact', 'default', 'wide', 'full'];
 const WIDTH_CLASSES = {
@@ -28,15 +21,11 @@ const SUGGESTIONS = [
 ];
 
 const STORAGE_KEY = 'mindset-chat-history';
-const MODEL_STORAGE_KEY = 'mindset-chat-model';
 
 export function Chat() {
   const [messages, setMessages] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? JSON.parse(saved) : [];
-  });
-  const [model, setModel] = useState(() => {
-    return localStorage.getItem(MODEL_STORAGE_KEY) || MODELS[0].id;
   });
   const [widthMode, setWidthMode] = useState('default');
   const [input, setInput] = useState('');
@@ -48,10 +37,6 @@ export function Chat() {
     const nextIndex = (currentIndex + 1) % WIDTH_MODES.length;
     setWidthMode(WIDTH_MODES[nextIndex]);
   };
-
-  useEffect(() => {
-    localStorage.setItem(MODEL_STORAGE_KEY, model);
-  }, [model]);
 
   // Persist messages to localStorage
   useEffect(() => {
@@ -84,7 +69,7 @@ export function Chat() {
       const response = await fetch('/api/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, model }),
+        body: JSON.stringify({ question }),
       });
 
       const data = await response.json();
@@ -134,20 +119,6 @@ export function Chat() {
               )}
               <span className="text-xs capitalize">{widthMode}</span>
             </button>
-            <div className="chat-model-select">
-              <select
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                className="chat-model-dropdown"
-              >
-                {MODELS.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="chat-model-chevron" />
-            </div>
             <button
               onClick={clearHistory}
               className="chat-toolbar-btn"

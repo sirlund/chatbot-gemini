@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { MessageSquare, FileText, Sun, Moon } from 'lucide-react';
+import { MessageSquare, FileText, Sun, Moon, X } from 'lucide-react';
 
-export function Sidebar({ isDark, onToggleTheme }) {
+export function Sidebar({ isDark, onToggleTheme, isOpen, onClose }) {
   const [docs, setDocs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -27,7 +27,7 @@ export function Sidebar({ isDark, onToggleTheme }) {
   }, {});
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
         <div className="sidebar-logo">
           <div className="sidebar-logo-icon">M</div>
@@ -36,17 +36,26 @@ export function Sidebar({ isDark, onToggleTheme }) {
             <span className="sidebar-logo-subtitle">Documentation</span>
           </div>
         </div>
-        <button
-          onClick={onToggleTheme}
-          className="sidebar-theme-toggle"
-          title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-        >
-          {isDark ? (
-            <Sun className="w-4 h-4" />
-          ) : (
-            <Moon className="w-4 h-4" />
-          )}
-        </button>
+        <div className="sidebar-header-actions">
+          <button
+            onClick={onToggleTheme}
+            className="sidebar-theme-toggle"
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDark ? (
+              <Sun className="w-4 h-4" />
+            ) : (
+              <Moon className="w-4 h-4" />
+            )}
+          </button>
+          <button
+            onClick={onClose}
+            className="sidebar-close-btn"
+            aria-label="Close menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       <nav className="sidebar-nav">
