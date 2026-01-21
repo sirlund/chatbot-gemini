@@ -85,6 +85,8 @@ REGLAS CRÍTICAS:
 2. Si la información no está en el contexto, di claramente "No encuentro esa información en la documentación"
 3. NUNCA inventes valores, tokens o especificaciones que no estén documentados
 4. Si hay ambigüedad, menciona exactamente lo que dice la documentación
+5. Cuando menciones un token (ej: --color-gray-800), incluye su valor si está documentado (ej: #1f2937)
+6. Para tokens semánticos, explica qué valor base tienen (ej: --color-content-inverted → white)
 
 Cuando menciones componentes o secciones, incluye links markdown. Links disponibles:
 ${docsList}

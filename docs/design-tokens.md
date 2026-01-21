@@ -160,128 +160,128 @@ Sistema de elevación con 3 niveles. Ver [shadows.md](./shadows.md) para guía c
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--color-base-black` | rgb(18, 18, 19) | Negro del sistema, texto principal |
-| `--color-base-white` | rgb(254, 254, 255) | Blanco del sistema, fondos |
+| `--color-base-black` | #121213 | Negro del sistema, texto principal |
+| `--color-base-white` | #FEFEFF | Blanco del sistema, fondos |
 
 ### Escala de Grises
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--color-grey-100` | rgb(246, 246, 247) | Fondos sutiles, layers |
-| `--color-grey-200` | rgb(234, 234, 234) | Bordes sutiles, divisores |
-| `--color-grey-300` | rgb(204, 204, 205) | Bordes medios |
-| `--color-grey-400` | rgb(153, 153, 154) | Texto disabled, placeholders |
-| `--color-grey-500` | rgb(109, 109, 110) | Texto secundario |
-| `--color-grey-600` | rgb(63, 63, 70) | Texto en dark mode |
-| `--color-grey-700` | rgb(41, 41, 42) | Texto principal |
+| `--color-grey-100` | #F6F6F7 | Fondos sutiles, layers |
+| `--color-grey-200` | #EAEAEA | Bordes sutiles, divisores |
+| `--color-grey-300` | #CCCCCD | Bordes medios |
+| `--color-grey-400` | #99999A | Texto disabled, placeholders |
+| `--color-grey-500` | #6D6D6E | Texto secundario |
+| `--color-grey-600` | #3F3F46 | Texto en dark mode |
+| `--color-grey-700` | #29292A | Texto principal |
 
 ### Escala de Azules (Accent)
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--color-blue-100` | rgb(232, 243, 255) | Fondos de badges, highlights |
-| `--color-blue-200` | rgb(180, 211, 255) | Hover states suaves |
-| `--color-blue-300` | rgb(76, 150, 255) | Iconos accent |
-| `--color-blue-400` | rgb(0, 105, 255) | **Color accent principal**, botones, links |
-| `--color-blue-500` | rgb(0, 75, 183) | Hover de botones |
-| `--color-blue-600` | rgb(0, 46, 111) | Active states |
-| `--color-blue-700` | rgb(0, 31, 75) | Dark mode backgrounds |
+| `--color-blue-100` | #E8F3FF | Fondos de badges, highlights |
+| `--color-blue-200` | #B4D3FF | Hover states suaves |
+| `--color-blue-300` | #4C96FF | Iconos accent |
+| `--color-blue-400` | #0069FF | **Color accent principal**, botones, links |
+| `--color-blue-500` | #004BB7 | Hover de botones |
+| `--color-blue-600` | #002E6F | Active states |
+| `--color-blue-700` | #001F4B | Dark mode backgrounds |
 
 ### Escala de Rojos (Error/Negative)
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--color-red-100` | rgb(255, 243, 241) | Fondos de alertas de error |
-| `--color-red-200` | rgb(254, 209, 201) | Bordes de error suaves |
-| `--color-red-300` | rgb(237, 115, 99) | Iconos de error |
-| `--color-red-400` | rgb(205, 73, 55) | **Error principal**, texto de error |
-| `--color-red-500` | rgb(189, 54, 36) | Error hover |
-| `--color-red-600` | rgb(168, 32, 13) | Error crítico |
-| `--color-red-700` | rgb(128, 20, 5) | Dark mode error background |
+| `--color-red-100` | #FFF3F1 | Fondos de alertas de error |
+| `--color-red-200` | #FED1C9 | Bordes de error suaves |
+| `--color-red-300` | #ED7363 | Iconos de error |
+| `--color-red-400` | #CD4937 | **Error principal**, texto de error |
+| `--color-red-500` | #BD3624 | Error hover |
+| `--color-red-600` | #A8200D | Error crítico |
+| `--color-red-700` | #801405 | Dark mode error background |
 
 ### Escala de Verdes (Success/Positive)
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--color-green-100` | rgb(240, 254, 241) | Fondos de mensajes de éxito |
-| `--color-green-200` | rgb(204, 238, 206) | Bordes de éxito |
-| `--color-green-300` | rgb(104, 178, 111) | Iconos de éxito |
-| `--color-green-400` | rgb(52, 134, 60) | **Success principal**, checkmarks |
-| `--color-green-500` | rgb(18, 121, 29) | Success hover |
-| `--color-green-600` | rgb(8, 93, 17) | Success strong |
-| `--color-green-700` | rgb(3, 65, 10) | Dark mode success background |
+| `--color-green-100` | #F0FEF1 | Fondos de mensajes de éxito |
+| `--color-green-200` | #CCEECE | Bordes de éxito |
+| `--color-green-300` | #68B26F | Iconos de éxito |
+| `--color-green-400` | #34863C | **Success principal**, checkmarks |
+| `--color-green-500` | #12791D | Success hover |
+| `--color-green-600` | #085D11 | Success strong |
+| `--color-green-700` | #03410A | Dark mode success background |
 
 ### Escala de Amarillos (Warning)
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--color-yellow-100` | rgb(255, 249, 227) | Fondos de advertencias |
-| `--color-yellow-200` | rgb(253, 239, 190) | Bordes de warning |
-| `--color-yellow-300` | rgb(245, 218, 117) | Iconos de warning |
-| `--color-yellow-400` | rgb(237, 200, 67) | **Warning principal** |
-| `--color-yellow-500` | rgb(177, 142, 14) | Warning strong |
-| `--color-yellow-600` | rgb(129, 101, 0) | Warning hover |
-| `--color-yellow-700` | rgb(87, 68, 0) | Dark mode warning background |
+| `--color-yellow-100` | #FFF9E3 | Fondos de advertencias |
+| `--color-yellow-200` | #FDEFBE | Bordes de warning |
+| `--color-yellow-300` | #F5DA75 | Iconos de warning |
+| `--color-yellow-400` | #EDC843 | **Warning principal** |
+| `--color-yellow-500` | #B18E0E | Warning strong |
+| `--color-yellow-600` | #816500 | Warning hover |
+| `--color-yellow-700` | #574400 | Dark mode warning background |
 
 ### Escala de Rosas (Pink)
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--color-pink-100` | rgb(252, 228, 236) | Fondos decorativos |
-| `--color-pink-200` | rgb(246, 179, 200) | Bordes decorativos |
-| `--color-pink-300` | rgb(241, 130, 165) | Iconos |
-| `--color-pink-400` | rgb(235, 81, 129) | **Pink principal** |
-| `--color-pink-500` | rgb(169, 58, 93) | Pink strong |
-| `--color-pink-600` | rgb(102, 35, 56) | Pink dark |
-| `--color-pink-700` | rgb(69, 24, 38) | Dark mode pink background |
+| `--color-pink-100` | #FCE4EC | Fondos decorativos |
+| `--color-pink-200` | #F6B3C8 | Bordes decorativos |
+| `--color-pink-300` | #F182A5 | Iconos |
+| `--color-pink-400` | #EB5181 | **Pink principal** |
+| `--color-pink-500` | #A93A5D | Pink strong |
+| `--color-pink-600` | #662338 | Pink dark |
+| `--color-pink-700` | #451826 | Dark mode pink background |
 
 ### Escala de Jade
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--color-jade-100` | rgb(223, 247, 237) | Fondos |
-| `--color-jade-200` | rgb(164, 232, 205) | Bordes |
-| `--color-jade-300` | rgb(104, 217, 172) | Iconos |
-| `--color-jade-400` | rgb(45, 202, 140) | **Jade principal**, actions en build system |
-| `--color-jade-500` | rgb(32, 145, 100) | Jade strong |
-| `--color-jade-600` | rgb(20, 88, 61) | Jade dark |
-| `--color-jade-700` | rgb(13, 59, 41) | Dark mode jade background |
+| `--color-jade-100` | #DFF7ED | Fondos |
+| `--color-jade-200` | #A4E8CD | Bordes |
+| `--color-jade-300` | #68D9AC | Iconos |
+| `--color-jade-400` | #2DCA8C | **Jade principal**, actions en build system |
+| `--color-jade-500` | #209164 | Jade strong |
+| `--color-jade-600` | #14583D | Jade dark |
+| `--color-jade-700` | #0D3B29 | Dark mode jade background |
 
 ### Escala de Violetas
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--color-violet-100` | rgb(235, 230, 246) | Fondos |
-| `--color-violet-200` | rgb(197, 183, 228) | Bordes |
-| `--color-violet-300` | rgb(160, 136, 211) | Iconos |
-| `--color-violet-400` | rgb(122, 89, 194) | **Violet principal**, data en build system |
-| `--color-violet-500` | rgb(88, 64, 139) | Violet strong |
-| `--color-violet-600` | rgb(53, 39, 84) | Violet dark |
-| `--color-violet-700` | rgb(36, 26, 57) | Dark mode violet background |
+| `--color-violet-100` | #EBE6F6 | Fondos |
+| `--color-violet-200` | #C5B7E4 | Bordes |
+| `--color-violet-300` | #A088D3 | Iconos |
+| `--color-violet-400` | #7A59C2 | **Violet principal**, data en build system |
+| `--color-violet-500` | #58408B | Violet strong |
+| `--color-violet-600` | #352754 | Violet dark |
+| `--color-violet-700` | #241A39 | Dark mode violet background |
 
 ### Escala de Amber
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--color-amber-100` | rgb(251, 239, 225) | Fondos |
-| `--color-amber-200` | rgb(243, 210, 170) | Bordes |
-| `--color-amber-300` | rgb(236, 181, 114) | Iconos |
-| `--color-amber-400` | rgb(228, 152, 59) | **Amber principal**, functions en build system |
-| `--color-amber-500` | rgb(164, 109, 42) | Amber strong |
-| `--color-amber-600` | rgb(99, 66, 26) | Amber dark |
-| `--color-amber-700` | rgb(67, 45, 17) | Dark mode amber background |
+| `--color-amber-100` | #FBEFE1 | Fondos |
+| `--color-amber-200` | #F3D2AA | Bordes |
+| `--color-amber-300` | #ECB572 | Iconos |
+| `--color-amber-400` | #E4983B | **Amber principal**, functions en build system |
+| `--color-amber-500` | #A46D2A | Amber strong |
+| `--color-amber-600` | #63421A | Amber dark |
+| `--color-amber-700` | #432D11 | Dark mode amber background |
 
 ### Escala de Teal
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--color-teal-100` | rgb(227, 239, 243) | Fondos |
-| `--color-teal-200` | rgb(177, 210, 220) | Bordes |
-| `--color-teal-300` | rgb(126, 180, 197) | Iconos |
-| `--color-teal-400` | rgb(75, 151, 174) | **Teal principal**, inputs en build system |
-| `--color-teal-500` | rgb(54, 108, 125) | Teal strong |
-| `--color-teal-600` | rgb(33, 66, 76) | Teal dark |
-| `--color-teal-700` | rgb(22, 44, 51) | Dark mode teal background |
+| `--color-teal-100` | #E3EFF3 | Fondos |
+| `--color-teal-200` | #B1D2DC | Bordes |
+| `--color-teal-300` | #7EB4C5 | Iconos |
+| `--color-teal-400` | #4B97AE | **Teal principal**, inputs en build system |
+| `--color-teal-500` | #366C7D | Teal strong |
+| `--color-teal-600` | #21424C | Teal dark |
+| `--color-teal-700` | #162C33 | Dark mode teal background |
 
 ### Colores con transparencia (Alpha)
 

@@ -111,25 +111,25 @@ interface ButtonProps {
 #### Accent (Secondary)
 | Estado | Background | Text | Border |
 |--------|------------|------|--------|
-| Default | `--color-azure-500` | `--color-base-white` | none |
-| Hover | `--color-azure-600` | `--color-base-white` | none |
-| Active | `--color-azure-700` | `--color-base-white` | none |
-| Disabled | `--color-azure-200` | `--color-azure-400` | none |
+| Default | `--color-blue-500` | `--color-base-white` | none |
+| Hover | `--color-blue-600` | `--color-base-white` | none |
+| Active | `--color-blue-700` | `--color-base-white` | none |
+| Disabled | `--color-blue-200` | `--color-blue-400` | none |
 
 #### Ghost (Outline)
 | Estado | Background | Text | Border |
 |--------|------------|------|--------|
-| Default | transparent | `--color-azure-500` | `--color-azure-500` |
-| Hover | `--color-azure-50` | `--color-azure-600` | `--color-azure-600` |
-| Active | `--color-azure-100` | `--color-azure-700` | `--color-azure-700` |
+| Default | transparent | `--color-blue-500` | `--color-blue-500` |
+| Hover | `--color-blue-50` | `--color-blue-600` | `--color-blue-600` |
+| Active | `--color-blue-100` | `--color-blue-700` | `--color-blue-700` |
 | Disabled | transparent | `--color-gray-300` | `--color-gray-300` |
 
 #### Text
 | Estado | Background | Text | Border |
 |--------|------------|------|--------|
-| Default | transparent | `--color-azure-500` | none |
-| Hover | `--color-azure-50` | `--color-azure-600` | none |
-| Active | `--color-azure-100` | `--color-azure-700` | none |
+| Default | transparent | `--color-blue-500` | none |
+| Hover | `--color-blue-50` | `--color-blue-600` | none |
+| Active | `--color-blue-100` | `--color-blue-700` | none |
 | Disabled | transparent | `--color-gray-300` | none |
 
 ### Iconos
@@ -214,41 +214,41 @@ interface ButtonProps {
 
 /* Accent */
 .button--accent {
-  background: var(--color-azure-500);
+  background: var(--color-blue-500);
   color: var(--color-base-white);
 }
 
 .button--accent:hover {
-  background: var(--color-azure-600);
+  background: var(--color-blue-600);
 }
 
 .button--accent:active {
-  background: var(--color-azure-700);
+  background: var(--color-blue-700);
 }
 
 .button--accent:disabled {
-  background: var(--color-azure-200);
-  color: var(--color-azure-400);
+  background: var(--color-blue-200);
+  color: var(--color-blue-400);
   cursor: not-allowed;
 }
 
 /* Ghost */
 .button--ghost {
   background: transparent;
-  color: var(--color-azure-500);
-  border: var(--stroke-thin) solid var(--color-azure-500);
+  color: var(--color-blue-500);
+  border: var(--stroke-thin) solid var(--color-blue-500);
 }
 
 .button--ghost:hover {
-  background: var(--color-azure-50);
-  color: var(--color-azure-600);
-  border-color: var(--color-azure-600);
+  background: var(--color-blue-50);
+  color: var(--color-blue-600);
+  border-color: var(--color-blue-600);
 }
 
 .button--ghost:active {
-  background: var(--color-azure-100);
-  color: var(--color-azure-700);
-  border-color: var(--color-azure-700);
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+  border-color: var(--color-blue-700);
 }
 
 .button--ghost:disabled {
@@ -260,19 +260,19 @@ interface ButtonProps {
 /* Text */
 .button--text {
   background: transparent;
-  color: var(--color-azure-500);
+  color: var(--color-blue-500);
   padding-left: var(--gap-xs);
   padding-right: var(--gap-xs);
 }
 
 .button--text:hover {
-  background: var(--color-azure-50);
-  color: var(--color-azure-600);
+  background: var(--color-blue-50);
+  color: var(--color-blue-600);
 }
 
 .button--text:active {
-  background: var(--color-azure-100);
-  color: var(--color-azure-700);
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
 }
 
 .button--text:disabled {
@@ -282,7 +282,7 @@ interface ButtonProps {
 
 /* Focus state (all variants) */
 .button:focus-visible {
-  outline: 2px solid var(--color-azure-500);
+  outline: 2px solid var(--color-blue-500);
   outline-offset: 2px;
 }
 

@@ -71,8 +71,8 @@ interface BannerProps {
 
 | Tipo | Background | Text Color | Icon Color |
 |------|------------|------------|------------|
-| **Accent** | `--color-azure-500` | `--color-base-white` | `--color-base-white` |
-| **Subtle** | `--color-azure-100` | `--color-content-primary` | `--color-azure-600` |
+| **Accent** | `--color-blue-500` | `--color-base-white` | `--color-base-white` |
+| **Subtle** | `--color-blue-100` | `--color-content-primary` | `--color-blue-600` |
 | **Success** | `--color-jade-500` | `--color-base-white` | `--color-base-white` |
 | **Warning** | `--color-amber-400` | `--color-content-primary` | `--color-content-primary` |
 | **Error** | `--color-ruby-500` | `--color-base-white` | `--color-base-white` |
@@ -134,12 +134,12 @@ interface BannerProps {
 
 /* Types */
 .banner--accent {
-  background: var(--color-azure-500);
+  background: var(--color-blue-500);
   color: var(--color-base-white);
 }
 
 .banner--subtle {
-  background: var(--color-azure-100);
+  background: var(--color-blue-100);
   color: var(--color-content-primary);
 }
 

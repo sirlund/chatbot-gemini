@@ -110,6 +110,13 @@ npm run dev
 - [ ] Tooltips
 - [ ] Tree
 
+## Roadmap
+
+- [ ] Citas/referencias en respuestas (mostrar de qué documento viene la info)
+- [ ] Soporte para Gemini 3 Pro (cuando llamaindex lo soporte)
+- [ ] Upload de documentos por UI
+- [ ] Audio overview (estilo NotebookLM)
+
 ## API
 
 ### POST /api/query
