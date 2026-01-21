@@ -100,6 +100,102 @@ app.get('/api/docs', (req, res) => {
   }
 });
 
+// Storybook configuration
+const STORYBOOK_URL = 'https://sirlund.github.io/mindset-design-system';
+let storybookCache = null;
+let storybookCacheTime = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// GET /api/storybook/components - Get components from Storybook
+app.get('/api/storybook/components', async (req, res) => {
+  try {
+    const now = Date.now();
+    if (storybookCache && (now - storybookCacheTime) < CACHE_TTL) {
+      return res.json(storybookCache);
+    }
+
+    const response = await fetch(`${STORYBOOK_URL}/index.json`);
+    if (!response.ok) throw new Error('Failed to fetch Storybook index');
+
+    const data = await response.json();
+
+    // Parse components from index
+    const components = {};
+    for (const [id, entry] of Object.entries(data.entries || {})) {
+      if (entry.type === 'story' && entry.componentPath) {
+        const componentName = entry.title.split('/').pop();
+        if (!components[componentName]) {
+          components[componentName] = {
+            name: componentName,
+            stories: [],
+            path: entry.componentPath,
+          };
+        }
+        components[componentName].stories.push({
+          id: entry.id,
+          name: entry.name,
+          title: entry.title,
+        });
+      }
+    }
+
+    storybookCache = {
+      url: STORYBOOK_URL,
+      components: Object.values(components),
+      timestamp: now,
+    };
+    storybookCacheTime = now;
+
+    res.json(storybookCache);
+  } catch (error) {
+    console.error('Error fetching Storybook:', error);
+    res.status(500).json({ error: 'Error fetching Storybook components' });
+  }
+});
+
+// POST /api/build - Generate component code
+app.post('/api/build', async (req, res) => {
+  try {
+    const { prompt, components } = req.body;
+
+    if (!prompt) {
+      return res.status(400).json({ error: 'Prompt is required' });
+    }
+
+    const rag = await getRAG();
+
+    // Build context with available components
+    const componentList = components?.map(c =>
+      `- ${c.name}: stories: ${c.stories.map(s => s.name).join(', ')}`
+    ).join('\n') || '';
+
+    const systemPrompt = `Eres un experto en React y el MindSet Design System.
+Tu tarea es generar código React que use los componentes disponibles del design system.
+
+COMPONENTES DISPONIBLES (de Storybook):
+${componentList}
+
+REGLAS:
+1. Usa SOLO los componentes listados arriba
+2. Importa desde '@mindset/ui' (ej: import { Button } from '@mindset/ui')
+3. Usa los tokens del design system para estilos inline si es necesario
+4. Genera código limpio y funcional
+5. Incluye TypeScript types si es apropiado
+6. NO uses componentes que no estén en la lista
+
+Responde SOLO con el código, sin explicaciones adicionales. Usa bloques de código markdown.`;
+
+    const fullPrompt = `${systemPrompt}\n\nUsuario quiere: ${prompt}`;
+
+    const response = await rag.queryRAG(fullPrompt);
+
+    res.json({ code: response });
+  } catch (error) {
+    console.error('Error en build:', error);
+    res.status(500).json({ error: 'Error generating code' });
+  }
+});
+
 // GET /api/docs/:slug - Get single document content
 app.get('/api/docs/:slug', (req, res) => {
   try {

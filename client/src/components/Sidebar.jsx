@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { MessageSquare, FileText, Sun, Moon, X } from 'lucide-react';
+import { MessageSquare, FileText, Sun, Moon, X, Hammer } from 'lucide-react';
 
 export function Sidebar({ isDark, onToggleTheme, isOpen, onClose }) {
   const [docs, setDocs] = useState([]);
@@ -66,6 +66,15 @@ export function Sidebar({ isDark, onToggleTheme, isOpen, onClose }) {
         >
           <MessageSquare className="sidebar-item-icon" />
           <span>Chat Assistant</span>
+        </NavLink>
+
+        <NavLink
+          to="/build"
+          className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
+        >
+          <Hammer className="sidebar-item-icon" />
+          <span>Build Mode</span>
+          <span className="sidebar-badge">Beta</span>
         </NavLink>
 
         {isLoading ? (
