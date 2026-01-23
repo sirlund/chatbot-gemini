@@ -1,7 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'motion/react';
-import { Hammer, ArrowUp, Copy, Check, Loader2, RotateCcw } from 'lucide-react';
-import { SandpackProvider, SandpackCodeEditor, SandpackPreview } from '@codesandbox/sandpack-react';
+import { Hammer, ArrowUp, Copy, Check, Loader2, RotateCcw, Columns2, Rows2, Square } from 'lucide-react';
+import { SandpackProvider, SandpackCodeEditor, SandpackPreview, useSandpack } from '@codesandbox/sandpack-react';
+import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels';
+
+// Component to sync code changes to parent
+function CodeSyncer({ onCodeChange }) {
+  const { sandpack } = useSandpack();
+
+  useEffect(() => {
+    const code = sandpack.files['/App.js']?.code || '';
+    onCodeChange(code);
+  }, [sandpack.files, onCodeChange]);
+
+  return null;
+}
 
 const SUGGESTIONS = [
   'Un botón accent que dice "Hola Mundo"',
@@ -18,13 +31,39 @@ const DEFAULT_CODE = `export default function App() {
   );
 }`;
 
+const LAYOUTS = {
+  horizontal: { direction: 'horizontal', icon: Columns2, label: 'Side by side' },
+  vertical: { direction: 'vertical', icon: Rows2, label: 'Top/bottom' },
+  previewOnly: { direction: 'preview', icon: Square, label: 'Preview only' },
+};
+
 export function Build() {
   const [components, setComponents] = useState([]);
   const [isLoadingComponents, setIsLoadingComponents] = useState(true);
-  const [prompt, setPrompt] = useState('');
-  const [code, setCode] = useState('');
+  const [prompt, setPrompt] = useState(() => {
+    return localStorage.getItem('buildPrompt') || '';
+  });
+  const [code, setCode] = useState(() => {
+    return localStorage.getItem('buildCode') || '';
+  });
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [layout, setLayout] = useState(() => {
+    return localStorage.getItem('buildLayout') || 'horizontal';
+  });
+
+  // Persist state to localStorage
+  useEffect(() => {
+    localStorage.setItem('buildLayout', layout);
+  }, [layout]);
+
+  useEffect(() => {
+    localStorage.setItem('buildPrompt', prompt);
+  }, [prompt]);
+
+  useEffect(() => {
+    localStorage.setItem('buildCode', code);
+  }, [code]);
 
   useEffect(() => {
     fetch('/api/storybook/components')
@@ -145,13 +184,24 @@ export function Build() {
   const reset = () => {
     setCode('');
     setPrompt('');
+    localStorage.removeItem('buildCode');
+    localStorage.removeItem('buildPrompt');
   };
+
+  const handleCodeChange = useCallback((newCode) => {
+    if (newCode !== code) {
+      setCode(newCode);
+    }
+  }, [code]);
 
   const sandpackFiles = {
     '/App.js': code || DEFAULT_CODE,
-    '/index.js': `import '@sirlund/mindset-ui/dist/index.css';
+    '/index.js': `import '@sirlund/mindset-ui/dist/styles.css';
 import App from './App';
 import { createRoot } from 'react-dom/client';
+
+// Force light mode for consistent rendering
+document.documentElement.setAttribute('data-theme', 'light');
 
 const root = createRoot(document.getElementById('root'));
 root.render(<App />);`,
@@ -173,12 +223,27 @@ root.render(<App />);`,
             <span>Build Mode</span>
             <span className="build-badge">Beta</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {code && (
-              <button onClick={reset} className="build-reset-btn">
-                <RotateCcw className="w-4 h-4" />
-                <span>Reset</span>
-              </button>
+              <>
+                {/* Layout selector */}
+                <div className="build-layout-selector">
+                  {Object.entries(LAYOUTS).map(([key, { icon: Icon, label }]) => (
+                    <button
+                      key={key}
+                      onClick={() => setLayout(key)}
+                      className={`build-layout-btn ${layout === key ? 'active' : ''}`}
+                      title={label}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </button>
+                  ))}
+                </div>
+                <button onClick={reset} className="build-reset-btn">
+                  <RotateCcw className="w-4 h-4" />
+                  <span>Reset</span>
+                </button>
+              </>
             )}
             {!isLoadingComponents && (
               <div className="build-components-count">
@@ -250,32 +315,52 @@ root.render(<App />);`,
               }}
               options={sandpackOptions}
             >
-              <div className="build-result">
-                <div className="build-code-panel">
-                  <div className="build-panel-header">
-                    <span>Código</span>
-                    <button onClick={copyCode} className="build-copy-btn">
-                      {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      {copied ? 'Copiado' : 'Copiar'}
-                    </button>
+              <CodeSyncer onCodeChange={handleCodeChange} />
+              {layout === 'previewOnly' ? (
+                <div className="build-result build-result-single">
+                  <div className="build-preview-panel">
+                    <div className="build-panel-header">
+                      <span>Preview</span>
+                    </div>
+                    <SandpackPreview
+                      showNavigator={false}
+                      showRefreshButton={true}
+                      style={{ flex: 1 }}
+                    />
                   </div>
-                  <SandpackCodeEditor
-                    showLineNumbers
-                    showTabs={false}
-                    style={{ flex: 1 }}
-                  />
                 </div>
-                <div className="build-preview-panel">
-                  <div className="build-panel-header">
-                    <span>Preview</span>
-                  </div>
-                  <SandpackPreview
-                    showNavigator={false}
-                    showRefreshButton={true}
-                    style={{ flex: 1 }}
-                  />
-                </div>
-              </div>
+              ) : (
+                <PanelGroup
+                  orientation={layout === 'vertical' ? 'vertical' : 'horizontal'}
+                  className="build-result"
+                >
+                  <Panel defaultSize={50} minSize={20} className="build-code-panel">
+                    <div className="build-panel-header">
+                      <span>Código</span>
+                      <button onClick={copyCode} className="build-copy-btn">
+                        {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        {copied ? 'Copiado' : 'Copiar'}
+                      </button>
+                    </div>
+                    <SandpackCodeEditor
+                      showLineNumbers
+                      showTabs={false}
+                      style={{ flex: 1 }}
+                    />
+                  </Panel>
+                  <PanelResizeHandle className="build-resize-handle" />
+                  <Panel defaultSize={50} minSize={20} className="build-preview-panel">
+                    <div className="build-panel-header">
+                      <span>Preview</span>
+                    </div>
+                    <SandpackPreview
+                      showNavigator={false}
+                      showRefreshButton={true}
+                      style={{ flex: 1 }}
+                    />
+                  </Panel>
+                </PanelGroup>
+              )}
             </SandpackProvider>
           )}
         </div>

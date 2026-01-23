@@ -153,44 +153,86 @@ app.get('/api/storybook/components', async (req, res) => {
   }
 });
 
+// Component manifest - loaded dynamically from @sirlund/mindset-ui
+let componentManifest = null;
+let manifestLoadTime = 0;
+const MANIFEST_TTL = 60 * 60 * 1000; // 1 hour cache
+
+async function getComponentManifest() {
+  const now = Date.now();
+  if (componentManifest && (now - manifestLoadTime) < MANIFEST_TTL) {
+    return componentManifest;
+  }
+
+  try {
+    const response = await fetch('https://unpkg.com/@sirlund/mindset-ui/dist/components-manifest.json');
+    if (response.ok) {
+      componentManifest = await response.json();
+      manifestLoadTime = now;
+      console.log(`Loaded mindset-ui manifest v${componentManifest.version}`);
+    }
+  } catch (err) {
+    console.error('Error loading manifest:', err);
+  }
+
+  return componentManifest;
+}
+
 // POST /api/build - Generate component code
 app.post('/api/build', async (req, res) => {
   try {
-    const { prompt, components } = req.body;
+    const { prompt } = req.body;
 
     if (!prompt) {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
     const rag = await getRAG();
+    const manifest = await getComponentManifest();
 
-    // Build context with available components
-    const componentList = components?.map(c =>
-      `- ${c.name}: variantes disponibles: ${c.stories.map(s => s.name).join(', ')}`
-    ).join('\n') || '';
+    // Build context from manifest
+    let componentList = '';
+    if (manifest?.components) {
+      componentList = Object.entries(manifest.components).map(([name, config]) => {
+        const propsStr = Object.entries(config.props || {})
+          .filter(([, prop]) => prop.values || prop.type === 'boolean')
+          .map(([key, prop]) => {
+            if (prop.values) return `${key}: ${prop.values.join('|')}`;
+            if (prop.type === 'boolean') return `${key}: true|false`;
+            return `${key}: ${prop.type}`;
+          })
+          .join(', ');
+        return `- ${name}: { ${propsStr} }`;
+      }).join('\n');
+    }
 
     const systemPrompt = `Eres un experto en React y el MindSet Design System.
 Tu tarea es generar código JSX funcional que use los componentes disponibles.
 
-COMPONENTES DISPONIBLES:
+COMPONENTES DISPONIBLES Y SUS PROPS:
 ${componentList}
+
+⚠️ IMPORTANTE: Usa SOLO los valores de props listados arriba.
 
 REGLAS ESTRICTAS:
 1. Genera SOLO código JSX, sin TypeScript (no uses : tipo ni interface/type)
-2. Importa desde '@sirlund/mindset-ui'
+2. Importa componentes desde '@sirlund/mindset-ui'
 3. El componente principal debe llamarse App y tener export default
 4. Usa estilos inline con style={{}} cuando necesites layout (flexbox, gap, padding)
 5. NO uses componentes que no estén en la lista
-6. Responde SOLO con un bloque de código markdown, sin explicaciones
+6. Para iconos en botones, usa el componente Icon con startIcon/endIcon
+7. Responde SOLO con un bloque de código markdown, sin explicaciones
 
 Ejemplo de estructura esperada:
 \`\`\`jsx
-import { Button } from '@sirlund/mindset-ui';
+import { Button, Icon } from '@sirlund/mindset-ui';
 
 export default function App() {
   return (
-    <div style={{ padding: '24px' }}>
-      <Button variant="accent">Click me</Button>
+    <div style={{ padding: '24px', display: 'flex', gap: '12px' }}>
+      <Button variant="primary">Primary</Button>
+      <Button variant="accent">Accent</Button>
+      <Button variant="danger" startIcon={<Icon name="trash" size="S" />}>Delete</Button>
     </div>
   );
 }

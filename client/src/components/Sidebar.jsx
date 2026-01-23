@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { MessageSquare, FileText, Sun, Moon, X, Hammer } from 'lucide-react';
+import { MessageSquare, FileText, Sun, Moon, X, Hammer, PanelLeftClose } from 'lucide-react';
 
-export function Sidebar({ isDark, onToggleTheme, isOpen, onClose }) {
+export function Sidebar({ isDark, onToggleTheme, isOpen, onClose, isCollapsed, onToggleCollapse }) {
   const [docs, setDocs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -27,7 +27,7 @@ export function Sidebar({ isDark, onToggleTheme, isOpen, onClose }) {
   }, {});
 
   return (
-    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+    <aside className={`sidebar ${isOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-header">
         <div className="sidebar-logo">
           <div className="sidebar-logo-icon">M</div>
@@ -47,6 +47,13 @@ export function Sidebar({ isDark, onToggleTheme, isOpen, onClose }) {
             ) : (
               <Moon className="w-4 h-4" />
             )}
+          </button>
+          <button
+            onClick={onToggleCollapse}
+            className="sidebar-collapse-btn"
+            title="Collapse sidebar"
+          >
+            <PanelLeftClose className="w-4 h-4" />
           </button>
           <button
             onClick={onClose}
