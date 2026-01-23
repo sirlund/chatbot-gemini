@@ -1,15 +1,22 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Hammer, ArrowUp, Copy, Check, ExternalLink, Loader2 } from 'lucide-react';
-
-const STORYBOOK_URL = 'https://sirlund.github.io/mindset-design-system';
+import { Hammer, ArrowUp, Copy, Check, Loader2, RotateCcw } from 'lucide-react';
+import { SandpackProvider, SandpackCodeEditor, SandpackPreview } from '@codesandbox/sandpack-react';
 
 const SUGGESTIONS = [
-  'Un formulario de login con inputs y botón primario',
-  'Una card de pricing con título, precio y features',
-  'Una toolbar con IconButtons para edición de texto',
-  'Un header con logo, navegación y botón de acción',
+  'Un botón accent que dice "Hola Mundo"',
+  'Tres cards de pricing comparando planes Free, Pro y Team',
+  'Una toolbar con IconButtons para bold, italic y underline',
+  'Un card con avatar, nombre de usuario y botón de seguir',
 ];
+
+const DEFAULT_CODE = `export default function App() {
+  return (
+    <div style={{ padding: '24px' }}>
+      <p>Genera un componente para ver el preview</p>
+    </div>
+  );
+}`;
 
 export function Build() {
   const [components, setComponents] = useState([]);
@@ -18,7 +25,6 @@ export function Build() {
   const [code, setCode] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [selectedStory, setSelectedStory] = useState(null);
 
   useEffect(() => {
     fetch('/api/storybook/components')
@@ -33,13 +39,75 @@ export function Build() {
       });
   }, []);
 
+  const extractCode = (rawCode) => {
+    // Extract code from markdown code block if present
+    const codeMatch = rawCode.match(/```(?:tsx?|jsx?)?\n([\s\S]*?)```/);
+    let cleanCode = codeMatch ? codeMatch[1] : rawCode;
+
+    // Remove TypeScript type/interface definitions (multi-line)
+    cleanCode = cleanCode.replace(/^(type|interface)\s+\w+\s*=?\s*\{[^}]*\};?\s*$/gm, '');
+    cleanCode = cleanCode.replace(/^(type|interface)\s+\w+\s*=\s*[^;]+;\s*$/gm, '');
+
+    // Separate imports from the rest of the code
+    const lines = cleanCode.split('\n');
+    const imports = [];
+    const rest = [];
+    let inTypeBlock = false;
+    let braceCount = 0;
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+
+      // Track multi-line type/interface blocks
+      if (trimmed.startsWith('type ') || trimmed.startsWith('interface ')) {
+        inTypeBlock = true;
+        braceCount = (line.match(/{/g) || []).length - (line.match(/}/g) || []).length;
+        if (braceCount <= 0) inTypeBlock = false;
+        continue;
+      }
+
+      if (inTypeBlock) {
+        braceCount += (line.match(/{/g) || []).length - (line.match(/}/g) || []).length;
+        if (braceCount <= 0) inTypeBlock = false;
+        continue;
+      }
+
+      if (trimmed.startsWith('import ')) {
+        // Skip React imports (Sandpack handles these)
+        if (!line.includes("from 'react'") && !line.includes('from "react"')) {
+          imports.push(line);
+        }
+      } else {
+        rest.push(line);
+      }
+    }
+
+    let codeBody = rest.join('\n').trim();
+
+    // Remove TypeScript type annotations
+    codeBody = codeBody.replace(/:\s*React\.FC\b(<[^>]+>)?/g, '');
+    codeBody = codeBody.replace(/:\s*FC\b(<[^>]+>)?/g, '');
+    codeBody = codeBody.replace(/:\s*\w+\[\]/g, ''); // array types like : string[]
+    codeBody = codeBody.replace(/\s*:\s*\{\s*\w+\s*:\s*\w+\s*(;\s*\w+\s*:\s*\w+\s*)*\}/g, ''); // inline object types
+
+    // Ensure there's an export default
+    if (!codeBody.includes('export default')) {
+      // Find the main component and add export default
+      codeBody = codeBody.replace(/^(const|function)\s+(\w+)/, 'export default $1 $2');
+    }
+
+    // Combine imports and code
+    const finalCode = [...imports, '', codeBody].join('\n').trim();
+
+    return finalCode;
+  };
+
   const generateCode = async (text) => {
     const userPrompt = text || prompt.trim();
     if (!userPrompt || isGenerating) return;
 
     setIsGenerating(true);
     setCode('');
-    setSelectedStory(null);
 
     try {
       const response = await fetch('/api/build', {
@@ -51,14 +119,8 @@ export function Build() {
       const data = await response.json();
 
       if (response.ok) {
-        setCode(data.code);
-        // Try to find a relevant story to preview
-        const relevantComponent = components.find((c) =>
-          userPrompt.toLowerCase().includes(c.name.toLowerCase())
-        );
-        if (relevantComponent?.stories[0]) {
-          setSelectedStory(relevantComponent.stories[0]);
-        }
+        const cleanCode = extractCode(data.code);
+        setCode(cleanCode);
       } else {
         setCode(`// Error: ${data.error}`);
       }
@@ -75,16 +137,30 @@ export function Build() {
   };
 
   const copyCode = () => {
-    // Extract code from markdown code block
-    const codeMatch = code.match(/```(?:tsx?|jsx?)?\n([\s\S]*?)```/);
-    const cleanCode = codeMatch ? codeMatch[1] : code;
-    navigator.clipboard.writeText(cleanCode);
+    navigator.clipboard.writeText(code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const getStoryUrl = (storyId) => {
-    return `${STORYBOOK_URL}/?path=/story/${storyId}`;
+  const reset = () => {
+    setCode('');
+    setPrompt('');
+  };
+
+  const sandpackFiles = {
+    '/App.js': code || DEFAULT_CODE,
+    '/index.js': `import '@sirlund/mindset-ui/dist/index.css';
+import App from './App';
+import { createRoot } from 'react-dom/client';
+
+const root = createRoot(document.getElementById('root'));
+root.render(<App />);`,
+  };
+
+  const sandpackOptions = {
+    externalResources: [
+      'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+    ],
   };
 
   return (
@@ -97,11 +173,19 @@ export function Build() {
             <span>Build Mode</span>
             <span className="build-badge">Beta</span>
           </div>
-          {!isLoadingComponents && (
-            <div className="build-components-count">
-              {components.length} componentes disponibles
-            </div>
-          )}
+          <div className="flex items-center gap-4">
+            {code && (
+              <button onClick={reset} className="build-reset-btn">
+                <RotateCcw className="w-4 h-4" />
+                <span>Reset</span>
+              </button>
+            )}
+            {!isLoadingComponents && (
+              <div className="build-components-count">
+                {components.length} componentes
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Main content */}
@@ -117,12 +201,12 @@ export function Build() {
                 Genera componentes React
               </h2>
               <p className="text-sm text-[var(--content-secondary)] text-center mb-6 max-w-sm">
-                Describe lo que necesitas y generaré código usando los componentes del MindSet Design System.
+                Describe lo que necesitas y lo renderizaré usando los componentes del MindSet Design System.
               </p>
 
               {/* Available components */}
               <div className="build-available-components">
-                <span className="text-xs text-[var(--content-tertiary)] mb-2">Componentes disponibles:</span>
+                <span className="text-xs text-[var(--content-secondary)] mb-2">Componentes disponibles:</span>
                 <div className="flex flex-wrap gap-1 justify-center">
                   {components.map((c) => (
                     <span key={c.name} className="build-component-tag">
@@ -148,79 +232,51 @@ export function Build() {
                 ))}
               </div>
             </motion.div>
-          ) : (
-            <div className="build-result">
-              {/* Code panel */}
-              <div className="build-code-panel">
-                <div className="build-panel-header">
-                  <span>Código generado</span>
-                  <button onClick={copyCode} className="build-copy-btn">
-                    {copied ? (
-                      <Check className="w-4 h-4" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
-                    {copied ? 'Copiado' : 'Copiar'}
-                  </button>
-                </div>
-                <div className="build-code-content">
-                  {isGenerating ? (
-                    <div className="build-loading">
-                      <Loader2 className="w-6 h-6 animate-spin text-[var(--accent)]" />
-                      <span>Generando código...</span>
-                    </div>
-                  ) : (
-                    <pre className="build-code">
-                      <code>{code}</code>
-                    </pre>
-                  )}
-                </div>
-              </div>
-
-              {/* Preview panel */}
-              <div className="build-preview-panel">
-                <div className="build-panel-header">
-                  <span>Preview (Storybook)</span>
-                  {selectedStory && (
-                    <a
-                      href={getStoryUrl(selectedStory.id)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="build-external-link"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      Abrir en Storybook
-                    </a>
-                  )}
-                </div>
-                <div className="build-preview-content">
-                  {selectedStory ? (
-                    <iframe
-                      src={`${STORYBOOK_URL}/iframe.html?id=${selectedStory.id}&viewMode=story`}
-                      title="Storybook Preview"
-                      className="build-iframe"
-                    />
-                  ) : (
-                    <div className="build-no-preview">
-                      <p className="text-sm text-[var(--content-secondary)]">
-                        Selecciona un componente para ver el preview
-                      </p>
-                      <div className="flex flex-wrap gap-2 mt-4">
-                        {components.slice(0, 4).map((c) => (
-                          <button
-                            key={c.name}
-                            onClick={() => setSelectedStory(c.stories[0])}
-                            className="build-preview-btn"
-                          >
-                            {c.name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+          ) : isGenerating ? (
+            <div className="build-loading-full">
+              <Loader2 className="w-8 h-8 animate-spin text-[var(--accent)]" />
+              <span className="text-[var(--content-secondary)]">Generando componente...</span>
             </div>
+          ) : (
+            <SandpackProvider
+              template="react"
+              theme="dark"
+              files={sandpackFiles}
+              customSetup={{
+                dependencies: {
+                  '@sirlund/mindset-ui': 'latest',
+                  'lucide-react': 'latest',
+                },
+              }}
+              options={sandpackOptions}
+            >
+              <div className="build-result">
+                <div className="build-code-panel">
+                  <div className="build-panel-header">
+                    <span>Código</span>
+                    <button onClick={copyCode} className="build-copy-btn">
+                      {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      {copied ? 'Copiado' : 'Copiar'}
+                    </button>
+                  </div>
+                  <SandpackCodeEditor
+                    showLineNumbers
+                    showTabs={false}
+                    style={{ flex: 1 }}
+                  />
+                </div>
+                <div className="build-preview-panel">
+                  <div className="build-panel-header">
+                    <span>Preview</span>
+                  </div>
+                  <SandpackPreview
+                    showNavigator={false}
+                    showRefreshButton={true}
+                    style={{ flex: 1 }}
+                  />
+                </div>
+              </div>
+            </SandpackProvider>
           )}
         </div>
 

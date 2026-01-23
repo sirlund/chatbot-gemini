@@ -122,13 +122,13 @@ app.get('/api/storybook/components', async (req, res) => {
     // Parse components from index
     const components = {};
     for (const [id, entry] of Object.entries(data.entries || {})) {
-      if (entry.type === 'story' && entry.componentPath) {
+      if (entry.type === 'story' && entry.title?.includes('/')) {
         const componentName = entry.title.split('/').pop();
         if (!components[componentName]) {
           components[componentName] = {
             name: componentName,
             stories: [],
-            path: entry.componentPath,
+            path: entry.importPath,
           };
         }
         components[componentName].stories.push({
@@ -166,28 +166,37 @@ app.post('/api/build', async (req, res) => {
 
     // Build context with available components
     const componentList = components?.map(c =>
-      `- ${c.name}: stories: ${c.stories.map(s => s.name).join(', ')}`
+      `- ${c.name}: variantes disponibles: ${c.stories.map(s => s.name).join(', ')}`
     ).join('\n') || '';
 
     const systemPrompt = `Eres un experto en React y el MindSet Design System.
-Tu tarea es generar código React que use los componentes disponibles del design system.
+Tu tarea es generar código JSX funcional que use los componentes disponibles.
 
-COMPONENTES DISPONIBLES (de Storybook):
+COMPONENTES DISPONIBLES:
 ${componentList}
 
-REGLAS:
-1. Usa SOLO los componentes listados arriba
-2. Importa desde '@mindset/ui' (ej: import { Button } from '@mindset/ui')
-3. Usa los tokens del design system para estilos inline si es necesario
-4. Genera código limpio y funcional
-5. Incluye TypeScript types si es apropiado
-6. NO uses componentes que no estén en la lista
+REGLAS ESTRICTAS:
+1. Genera SOLO código JSX, sin TypeScript (no uses : tipo ni interface/type)
+2. Importa desde '@sirlund/mindset-ui'
+3. El componente principal debe llamarse App y tener export default
+4. Usa estilos inline con style={{}} cuando necesites layout (flexbox, gap, padding)
+5. NO uses componentes que no estén en la lista
+6. Responde SOLO con un bloque de código markdown, sin explicaciones
 
-Responde SOLO con el código, sin explicaciones adicionales. Usa bloques de código markdown.`;
+Ejemplo de estructura esperada:
+\`\`\`jsx
+import { Button } from '@sirlund/mindset-ui';
 
-    const fullPrompt = `${systemPrompt}\n\nUsuario quiere: ${prompt}`;
+export default function App() {
+  return (
+    <div style={{ padding: '24px' }}>
+      <Button variant="accent">Click me</Button>
+    </div>
+  );
+}
+\`\`\``;
 
-    const response = await rag.queryRAG(fullPrompt);
+    const response = await rag.generateCode(prompt, systemPrompt);
 
     res.json({ code: response });
   } catch (error) {

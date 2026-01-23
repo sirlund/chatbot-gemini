@@ -131,4 +131,21 @@ async function getContext(question, topK = 3) {
   }));
 }
 
-module.exports = { queryRAG, getContext, getIndex };
+// Generate code using Gemini directly (no RAG retrieval)
+async function generateCode(prompt, systemPrompt) {
+  // Ensure LLM is initialized
+  if (!Settings.llm) {
+    initRAG();
+  }
+
+  const response = await Settings.llm.chat({
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: prompt },
+    ],
+  });
+
+  return response.message.content;
+}
+
+module.exports = { queryRAG, getContext, getIndex, generateCode };

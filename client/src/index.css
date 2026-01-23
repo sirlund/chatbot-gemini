@@ -793,6 +793,33 @@ html, body {
   color: var(--content-secondary);
 }
 
+.build-reset-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--stroke-subtle);
+  background: transparent;
+  color: var(--content-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.build-reset-btn:hover {
+  background: var(--surface-layer);
+}
+
+.build-loading-full {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
 .build-content {
   flex: 1;
   overflow-y: auto;
