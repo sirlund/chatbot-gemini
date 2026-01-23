@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
-import { Menu } from 'lucide-react';
+import { Menu, PanelLeftClose, PanelLeft } from 'lucide-react';
 
 export function Layout() {
   const [isDark, setIsDark] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('sidebarCollapsed') === 'true';
+  });
   const location = useLocation();
 
   useEffect(() => {
@@ -17,10 +20,16 @@ export function Layout() {
     setSidebarOpen(false);
   }, [location.pathname]);
 
+  // Persist collapsed state
+  useEffect(() => {
+    localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
+  }, [sidebarCollapsed]);
+
   const toggleTheme = () => setIsDark(!isDark);
+  const toggleCollapse = () => setSidebarCollapsed(!sidebarCollapsed);
 
   return (
-    <div className="app-layout">
+    <div className={`app-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       {/* Mobile header */}
       <header className="mobile-header">
         <button
@@ -49,8 +58,20 @@ export function Layout() {
         onToggleTheme={toggleTheme}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        isCollapsed={sidebarCollapsed}
+        onToggleCollapse={toggleCollapse}
       />
       <main className="main-content">
+        {/* Expand button when sidebar is collapsed */}
+        {sidebarCollapsed && (
+          <button
+            className="sidebar-expand-btn"
+            onClick={toggleCollapse}
+            title="Expand sidebar"
+          >
+            <PanelLeft className="w-5 h-5" />
+          </button>
+        )}
         <Outlet />
       </main>
     </div>

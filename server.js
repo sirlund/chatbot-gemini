@@ -100,6 +100,153 @@ app.get('/api/docs', (req, res) => {
   }
 });
 
+// Storybook configuration
+const STORYBOOK_URL = 'https://sirlund.github.io/mindset-design-system';
+let storybookCache = null;
+let storybookCacheTime = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// GET /api/storybook/components - Get components from Storybook
+app.get('/api/storybook/components', async (req, res) => {
+  try {
+    const now = Date.now();
+    if (storybookCache && (now - storybookCacheTime) < CACHE_TTL) {
+      return res.json(storybookCache);
+    }
+
+    const response = await fetch(`${STORYBOOK_URL}/index.json`);
+    if (!response.ok) throw new Error('Failed to fetch Storybook index');
+
+    const data = await response.json();
+
+    // Parse components from index
+    const components = {};
+    for (const [id, entry] of Object.entries(data.entries || {})) {
+      if (entry.type === 'story' && entry.title?.includes('/')) {
+        const componentName = entry.title.split('/').pop();
+        if (!components[componentName]) {
+          components[componentName] = {
+            name: componentName,
+            stories: [],
+            path: entry.importPath,
+          };
+        }
+        components[componentName].stories.push({
+          id: entry.id,
+          name: entry.name,
+          title: entry.title,
+        });
+      }
+    }
+
+    storybookCache = {
+      url: STORYBOOK_URL,
+      components: Object.values(components),
+      timestamp: now,
+    };
+    storybookCacheTime = now;
+
+    res.json(storybookCache);
+  } catch (error) {
+    console.error('Error fetching Storybook:', error);
+    res.status(500).json({ error: 'Error fetching Storybook components' });
+  }
+});
+
+// Component manifest - loaded dynamically from @sirlund/mindset-ui
+let componentManifest = null;
+let manifestLoadTime = 0;
+const MANIFEST_TTL = 60 * 60 * 1000; // 1 hour cache
+
+async function getComponentManifest() {
+  const now = Date.now();
+  if (componentManifest && (now - manifestLoadTime) < MANIFEST_TTL) {
+    return componentManifest;
+  }
+
+  try {
+    const response = await fetch('https://unpkg.com/@sirlund/mindset-ui/dist/components-manifest.json');
+    if (response.ok) {
+      componentManifest = await response.json();
+      manifestLoadTime = now;
+      console.log(`Loaded mindset-ui manifest v${componentManifest.version}`);
+    }
+  } catch (err) {
+    console.error('Error loading manifest:', err);
+  }
+
+  return componentManifest;
+}
+
+// POST /api/build - Generate component code
+app.post('/api/build', async (req, res) => {
+  try {
+    const { prompt } = req.body;
+
+    if (!prompt) {
+      return res.status(400).json({ error: 'Prompt is required' });
+    }
+
+    const rag = await getRAG();
+    const manifest = await getComponentManifest();
+
+    // Build context from manifest
+    let componentList = '';
+    if (manifest?.components) {
+      componentList = Object.entries(manifest.components).map(([name, config]) => {
+        const propsStr = Object.entries(config.props || {})
+          .filter(([, prop]) => prop.values || prop.type === 'boolean')
+          .map(([key, prop]) => {
+            if (prop.values) return `${key}: ${prop.values.join('|')}`;
+            if (prop.type === 'boolean') return `${key}: true|false`;
+            return `${key}: ${prop.type}`;
+          })
+          .join(', ');
+        return `- ${name}: { ${propsStr} }`;
+      }).join('\n');
+    }
+
+    const systemPrompt = `Eres un experto en React y el MindSet Design System.
+Tu tarea es generar código JSX funcional que use los componentes disponibles.
+
+COMPONENTES DISPONIBLES Y SUS PROPS:
+${componentList}
+
+⚠️ IMPORTANTE: Usa SOLO los valores de props listados arriba.
+
+REGLAS ESTRICTAS:
+1. Genera SOLO código JSX, sin TypeScript (no uses : tipo ni interface/type)
+2. Importa componentes desde '@sirlund/mindset-ui'
+3. El componente principal debe llamarse App y tener export default
+4. Usa estilos inline con style={{}} cuando necesites layout (flexbox, gap, padding)
+5. NO uses componentes que no estén en la lista
+6. Para iconos en botones, usa el componente Icon con startIcon/endIcon
+7. Responde SOLO con un bloque de código markdown, sin explicaciones
+
+Ejemplo de estructura esperada:
+\`\`\`jsx
+import { Button, Icon } from '@sirlund/mindset-ui';
+
+export default function App() {
+  return (
+    <div style={{ padding: '24px', display: 'flex', gap: '12px' }}>
+      <Button variant="primary">Primary</Button>
+      <Button variant="accent">Accent</Button>
+      <Button variant="danger" startIcon={<Icon name="trash" size="S" />}>Delete</Button>
+    </div>
+  );
+}
+\`\`\``;
+
+    const response = await rag.generateCode(prompt, systemPrompt);
+
+    res.json({ code: response });
+  } catch (error) {
+    console.error('Error en build:', error);
+    res.status(500).json({ error: 'Error generating code' });
+  }
+});
+
 // GET /api/docs/:slug - Get single document content
 app.get('/api/docs/:slug', (req, res) => {
   try {
