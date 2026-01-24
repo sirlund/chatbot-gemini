@@ -196,6 +196,36 @@ Get available components from Storybook index.
 - [ ] Audio overview (NotebookLM style)
 - [ ] Upload custom documentation
 
+## Changelog
+
+### v0.3.0 (2026-01-23)
+**Build Mode Release**
+- Add Build Mode with Sandpack for live React component preview
+- Natural language to component generation using Gemini
+- Dynamic component manifest loading from @sirlund/mindset-ui
+- Resizable code/preview panels (react-resizable-panels)
+- Multiple layout options: side-by-side, top-bottom, preview-only
+- Collapsible sidebar for more workspace
+- Persistent state (code, prompt, layout) in localStorage
+- Force light mode (data-theme) for consistent rendering
+- Sync code edits from Sandpack editor to state
+
+### v0.2.0 (2026-01-22)
+**Documentation Viewer**
+- Add sidebar with documentation index
+- Add documentation viewer with markdown rendering
+- Mobile responsive design with hamburger menu
+- Dark/light theme toggle
+- RAG improvements to prevent hallucinations
+- Links to documentation in chat responses
+
+### v0.1.0 (2026-01-21)
+**Initial Release**
+- Chat assistant with RAG using LlamaIndex
+- Gemini 2.5 Pro integration
+- Design System documentation (tokens, typography, shadows, icons)
+- Component documentation (Avatar, Badge, Banner, Button, Thumbnail)
+
 ## Related Projects
 
 - [@sirlund/mindset-ui](https://www.npmjs.com/package/@sirlund/mindset-ui) - React component library
